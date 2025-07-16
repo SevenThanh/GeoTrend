@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MapPage from "./pages/MapPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // Component to handle authenticated routing
@@ -30,6 +31,10 @@ const AuthenticatedApp = () => {
         <Route 
           path="/forgot-password" 
           element={user ? <Navigate to="/" replace /> : <ForgotPasswordPage />} 
+        />
+        <Route 
+          path="/reset-password" 
+          element={<ResetPasswordPage />} 
         />
         <Route 
           path="/*" 

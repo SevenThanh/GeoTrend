@@ -1,7 +1,8 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import MapPage from './pages/MapPage';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import MapPage from "./pages/MapPage";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 function App() {
   return (

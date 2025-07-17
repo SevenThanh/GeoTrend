@@ -50,13 +50,14 @@ const AccountPage = () => {
         {/* Left side */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-20 h-20 bg-blue-600 text-white text-3xl flex items-center justify-center rounded-full font-bold uppercase shadow">
+            <div className="w-16 h-16 bg-blue-600 text-white text-2xl flex items-center justify-center 
+            rounded-full font-bold uppercase shadow aspect-square">
               {formData.displayName.charAt(0)}
             </div>
             <div className="flex-1">
               {!editing ? (
                 <>
-                  <div className="text-xl font-semibold text-gray-800">{formData.displayName}</div>
+                  <div className="text-black font-semibold break-words text-sm">{user.email}</div>
                   <div className="text-gray-500">@{formData.username}</div>
                   <div className="text-gray-600 mt-2">{formData.bio}</div>
                   <div className="text-gray-500 text-sm mt-1">Location: {formData.location}</div>

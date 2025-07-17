@@ -10,6 +10,7 @@ const MapPage = () => {
   const [trendsLoading, setTrendsLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState(null);
   const [cityTrendData, setCityTrendData] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     async function getCityTrends() {
@@ -222,6 +223,8 @@ const MapPage = () => {
     },
   ];
 
+  const cityNames = majorCities.map((city) => city.name);
+
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
       container: "map",
@@ -426,7 +429,37 @@ const MapPage = () => {
         </p>
       </div>
       <div className="absolute right-0 top-0 h-full w-[25%]">
-        <h1 className="text-center font-semibold text-blue-600 mt-2">Trends</h1>
+        <h1 className="text-center font-semibold text-blue-600 mt-2 mb-2">
+          Trends
+        </h1>
+        <input
+          type="text"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="block mx-auto text-center w-[80%] h-[4%] rounded-md border-2 border-solid border-blue-100 bg-blue-100 text-blue-800 font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400"
+          placeholder="⌕ Search for cities..."
+        />
+        {searchValue && (
+          <ul className="absolute left-1/2 transform -translate-x-1/2 w-[80%] bg-white border border-blue-100 rounded-md shadow z-10 mt-1 max-h-48 overflow-y-auto">
+            {cityNames
+              .filter((name) =>
+                name.toLowerCase().includes(searchValue.toLowerCase())
+              )
+              .map((name) => (
+                <li
+                  key={name}
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                  onClick={() => {
+                    setSearchValue(name);
+                    const city = majorCities.find((c) => c.name === name);
+                    if (city) setSelectedCity(city.subreddit);
+                  }}
+                >
+                  {name}
+                </li>
+              ))}
+          </ul>
+        )}
         <div className="flex flex-col px-4 mt-4 overflow-y-auto max-h-[90%]">
           {trendsLoading ? (
             <div className="text-center text-gray-500 mt-8">Loading...</div>

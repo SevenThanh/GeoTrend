@@ -7,6 +7,37 @@ mapboxgl.accessToken =
 
 const MapPage = () => {
   const [map, setMap] = useState(null);
+  const [trendsLoading, setTrendsLoading] = useState(false);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [cityTrendData, setCityTrendData] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+
+  useEffect(() => {
+    async function getCityTrends() {
+      if (!selectedCity || trendsLoading) {
+        return;
+      }
+      try {
+        setTrendsLoading(true);
+        const response = await fetch(
+          `https://www.reddit.com/r/${selectedCity}/hot.json?limit=10`
+        );
+        const json = await response.json();
+        const data = json.data.children.map((post) => ({
+          title: post.data.title,
+          score: post.data.score,
+          comments: post.data.num_comments,
+          url: "https://reddit.com" + post.data.permalink,
+        }));
+        setCityTrendData(data);
+      } catch (error) {
+        console.log(error.message);
+      } finally {
+        setTrendsLoading(false);
+      }
+    }
+    getCityTrends();
+  }, [selectedCity]);
 
   // Major US cities data
   const majorCities = [
@@ -16,7 +47,8 @@ const MapPage = () => {
       population: "8.3M",
       state: "New York",
       description: "The largest city in the US and a global financial hub.",
-      trend: "Tech startups growing 15% YoY"
+      trend: "Tech startups growing 15% YoY",
+      subreddit: "nyc",
     },
     {
       name: "Los Angeles",
@@ -24,7 +56,8 @@ const MapPage = () => {
       population: "4.0M",
       state: "California",
       description: "Entertainment capital and major west coast hub.",
-      trend: "Entertainment industry up 8%"
+      trend: "Entertainment industry up 8%",
+      subreddit: "LosAngeles",
     },
     {
       name: "Chicago",
@@ -32,7 +65,8 @@ const MapPage = () => {
       population: "2.7M",
       state: "Illinois",
       description: "Major financial and transportation center.",
-      trend: "Manufacturing growth 12%"
+      trend: "Manufacturing growth 12%",
+      subreddit: "chicago",
     },
     {
       name: "Houston",
@@ -40,15 +74,17 @@ const MapPage = () => {
       population: "2.3M",
       state: "Texas",
       description: "Energy capital and major port city.",
-      trend: "Energy sector expanding 18%"
+      trend: "Energy sector expanding 18%",
+      subreddit: "houston",
     },
     {
       name: "Phoenix",
-      coordinates: [-112.0740, 33.4484],
+      coordinates: [-112.074, 33.4484],
       population: "1.7M",
       state: "Arizona",
       description: "Fastest growing major city in the US.",
-      trend: "Population growth 22% in 5 years"
+      trend: "Population growth 22% in 5 years",
+      subreddit: "phoenix",
     },
     {
       name: "Philadelphia",
@@ -56,7 +92,8 @@ const MapPage = () => {
       population: "1.6M",
       state: "Pennsylvania",
       description: "Historic city and major east coast hub.",
-      trend: "Healthcare sector up 14%"
+      trend: "Healthcare sector up 14%",
+      subreddit: "philadelphia",
     },
     {
       name: "San Antonio",
@@ -64,7 +101,8 @@ const MapPage = () => {
       population: "1.5M",
       state: "Texas",
       description: "Military and tourism center.",
-      trend: "Tourism revenue up 25%"
+      trend: "Tourism revenue up 25%",
+      subreddit: "sanantonio",
     },
     {
       name: "San Diego",
@@ -72,15 +110,17 @@ const MapPage = () => {
       population: "1.4M",
       state: "California",
       description: "Biotech and military hub with perfect weather.",
-      trend: "Biotech industry growing 20%"
+      trend: "Biotech industry growing 20%",
+      subreddit: "sandiego",
     },
     {
       name: "Dallas",
-      coordinates: [-96.7970, 32.7767],
+      coordinates: [-96.797, 32.7767],
       population: "1.3M",
       state: "Texas",
       description: "Major business and financial center.",
-      trend: "Corporate relocations up 30%"
+      trend: "Corporate relocations up 30%",
+      subreddit: "Dallas",
     },
     {
       name: "San Jose",
@@ -88,7 +128,8 @@ const MapPage = () => {
       population: "1.0M",
       state: "California",
       description: "Heart of Silicon Valley.",
-      trend: "AI startups increased 45%"
+      trend: "AI startups increased 45%",
+      subreddit: "SanJose",
     },
     {
       name: "Austin",
@@ -96,7 +137,8 @@ const MapPage = () => {
       population: "965K",
       state: "Texas",
       description: "Tech hub and music capital.",
-      trend: "Tech jobs up 35%"
+      trend: "Tech jobs up 35%",
+      subreddit: "Austin",
     },
     {
       name: "Jacksonville",
@@ -104,7 +146,8 @@ const MapPage = () => {
       population: "950K",
       state: "Florida",
       description: "Major port and logistics center.",
-      trend: "Logistics growth 16%"
+      trend: "Logistics growth 16%",
+      subreddit: "Jacksonville",
     },
     {
       name: "Fort Worth",
@@ -112,7 +155,8 @@ const MapPage = () => {
       population: "935K",
       state: "Texas",
       description: "Cultural and business center.",
-      trend: "Cultural tourism up 28%"
+      trend: "Cultural tourism up 28%",
+      subreddit: "fortworth",
     },
     {
       name: "Columbus",
@@ -120,7 +164,8 @@ const MapPage = () => {
       population: "905K",
       state: "Ohio",
       description: "Education and government hub.",
-      trend: "Education sector growing 11%"
+      trend: "Education sector growing 11%",
+      subreddit: "Columbus",
     },
     {
       name: "Seattle",
@@ -128,7 +173,8 @@ const MapPage = () => {
       population: "750K",
       state: "Washington",
       description: "Tech giant headquarters and coffee culture.",
-      trend: "Cloud computing jobs up 40%"
+      trend: "Cloud computing jobs up 40%",
+      subreddit: "Seattle",
     },
     {
       name: "Denver",
@@ -136,7 +182,8 @@ const MapPage = () => {
       population: "715K",
       state: "Colorado",
       description: "Mile high city and outdoor recreation hub.",
-      trend: "Green energy sector up 33%"
+      trend: "Green energy sector up 33%",
+      subreddit: "Denver",
     },
     {
       name: "Boston",
@@ -144,7 +191,8 @@ const MapPage = () => {
       population: "685K",
       state: "Massachusetts",
       description: "Education and biotech capital.",
-      trend: "Biomedical research up 24%"
+      trend: "Biomedical research up 24%",
+      subreddit: "boston",
     },
     {
       name: "Nashville",
@@ -152,7 +200,8 @@ const MapPage = () => {
       population: "670K",
       state: "Tennessee",
       description: "Music city and healthcare hub.",
-      trend: "Music industry revenue up 19%"
+      trend: "Music industry revenue up 19%",
+      subreddit: "nashville",
     },
     {
       name: "Detroit",
@@ -160,7 +209,8 @@ const MapPage = () => {
       population: "670K",
       state: "Michigan",
       description: "Motor city undergoing urban renewal.",
-      trend: "EV manufacturing up 50%"
+      trend: "EV manufacturing up 50%",
+      subreddit: "Detroit",
     },
     {
       name: "Miami",
@@ -168,9 +218,12 @@ const MapPage = () => {
       population: "470K",
       state: "Florida",
       description: "International gateway and finance hub.",
-      trend: "Fintech growth 42%"
-    }
+      trend: "Fintech growth 42%",
+      subreddit: "Miami",
+    },
   ];
+
+  const cityNames = majorCities.map((city) => city.name);
 
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
@@ -182,116 +235,120 @@ const MapPage = () => {
     });
 
     // Add navigation controls
-    mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    mapInstance.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    mapInstance.addControl(new mapboxgl.NavigationControl(), "top-right");
+    mapInstance.addControl(new mapboxgl.FullscreenControl(), "top-right");
     mapInstance.addControl(
       new mapboxgl.GeolocateControl({
         positionOptions: {
-          enableHighAccuracy: true
+          enableHighAccuracy: true,
         },
         trackUserLocation: true,
-        showUserHeading: true
+        showUserHeading: true,
       }),
-      'top-right'
+      "top-right"
     );
-    mapInstance.addControl(new mapboxgl.ScaleControl({
-      maxWidth: 100,
-      unit: 'metric'
-    }), 'bottom-left');
+    mapInstance.addControl(
+      new mapboxgl.ScaleControl({
+        maxWidth: 100,
+        unit: "metric",
+      }),
+      "bottom-left"
+    );
 
-    mapInstance.on('load', () => {
+    mapInstance.on("load", () => {
       // Create GeoJSON data for cities
       const citiesGeoJSON = {
-        type: 'FeatureCollection',
-        features: majorCities.map(city => ({
-          type: 'Feature',
+        type: "FeatureCollection",
+        features: majorCities.map((city) => ({
+          type: "Feature",
           geometry: {
-            type: 'Point',
-            coordinates: city.coordinates
+            type: "Point",
+            coordinates: city.coordinates,
           },
           properties: {
             name: city.name,
             state: city.state,
             population: city.population,
             description: city.description,
-            trend: city.trend
-          }
-        }))
+            trend: city.trend,
+            subreddit: city.subreddit,
+          },
+        })),
       };
 
       // Add cities data source
-      mapInstance.addSource('cities', {
-        type: 'geojson',
-        data: citiesGeoJSON
+      mapInstance.addSource("cities", {
+        type: "geojson",
+        data: citiesGeoJSON,
       });
 
       // Add circle layer for city markers
       mapInstance.addLayer({
-        id: 'cities-circles',
-        type: 'circle',
-        source: 'cities',
+        id: "cities-circles",
+        type: "circle",
+        source: "cities",
         paint: {
-          'circle-radius': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
+          "circle-radius": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
             12,
-            8
+            8,
           ],
-          'circle-color': '#3B82F6',
-          'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': 2,
-          'circle-opacity': 0.9,
-          'circle-stroke-opacity': 1
-        }
+          "circle-color": "#3B82F6",
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 2,
+          "circle-opacity": 0.9,
+          "circle-stroke-opacity": 1,
+        },
       });
 
       // Add labels layer for city names
       mapInstance.addLayer({
-        id: 'cities-labels',
-        type: 'symbol',
-        source: 'cities',
+        id: "cities-labels",
+        type: "symbol",
+        source: "cities",
         layout: {
-          'text-field': ['get', 'name'],
-          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-          'text-offset': [0, 1.25],
-          'text-anchor': 'top',
-          'text-size': 12
+          "text-field": ["get", "name"],
+          "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+          "text-offset": [0, 1.25],
+          "text-anchor": "top",
+          "text-size": 12,
         },
         paint: {
-          'text-color': '#1f2937',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 1
-        }
+          "text-color": "#1f2937",
+          "text-halo-color": "#ffffff",
+          "text-halo-width": 1,
+        },
       });
 
       // Variable to track hover state
       let hoveredCityId = null;
 
       // Add hover effects
-      mapInstance.on('mouseenter', 'cities-circles', (e) => {
-        mapInstance.getCanvas().style.cursor = 'pointer';
-        
+      mapInstance.on("mouseenter", "cities-circles", (e) => {
+        mapInstance.getCanvas().style.cursor = "pointer";
+
         if (e.features.length > 0) {
           if (hoveredCityId !== null) {
             mapInstance.setFeatureState(
-              { source: 'cities', id: hoveredCityId },
+              { source: "cities", id: hoveredCityId },
               { hover: false }
             );
           }
           hoveredCityId = e.features[0].id;
           mapInstance.setFeatureState(
-            { source: 'cities', id: hoveredCityId },
+            { source: "cities", id: hoveredCityId },
             { hover: true }
           );
         }
       });
 
-      mapInstance.on('mouseleave', 'cities-circles', () => {
-        mapInstance.getCanvas().style.cursor = 'grab';
-        
+      mapInstance.on("mouseleave", "cities-circles", () => {
+        mapInstance.getCanvas().style.cursor = "grab";
+
         if (hoveredCityId !== null) {
           mapInstance.setFeatureState(
-            { source: 'cities', id: hoveredCityId },
+            { source: "cities", id: hoveredCityId },
             { hover: false }
           );
         }
@@ -299,9 +356,10 @@ const MapPage = () => {
       });
 
       // Add click event for popups
-      mapInstance.on('click', 'cities-circles', (e) => {
+      mapInstance.on("click", "cities-circles", (e) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
         const properties = e.features[0].properties;
+        setSelectedCity(properties.subreddit);
 
         // Create popup content
         const popupContent = `
@@ -324,24 +382,24 @@ const MapPage = () => {
           offset: 25,
           closeButton: true,
           closeOnClick: true,
-          maxWidth: '300px'
+          maxWidth: "300px",
         })
-        .setLngLat(coordinates)
-        .setHTML(popupContent)
-        .addTo(mapInstance);
+          .setLngLat(coordinates)
+          .setHTML(popupContent)
+          .addTo(mapInstance);
       });
 
       // General map hover effects
-      mapInstance.on('mouseenter', () => {
-        mapInstance.getCanvas().style.cursor = 'grab';
+      mapInstance.on("mouseenter", () => {
+        mapInstance.getCanvas().style.cursor = "grab";
       });
 
-      mapInstance.on('mousedown', () => {
-        mapInstance.getCanvas().style.cursor = 'grabbing';
+      mapInstance.on("mousedown", () => {
+        mapInstance.getCanvas().style.cursor = "grabbing";
       });
 
-      mapInstance.on('mouseup', () => {
-        mapInstance.getCanvas().style.cursor = 'grab';
+      mapInstance.on("mouseup", () => {
+        mapInstance.getCanvas().style.cursor = "grab";
       });
     });
 
@@ -353,18 +411,88 @@ const MapPage = () => {
   return (
     <div className="relative h-full w-full">
       {/* Map Container */}
-      <div id="map" className="h-full w-full" />
-      
+      <div id="map" className="h-full w-[75%]" />
       {/* Map Legend */}
       <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-xs">
-        <h3 className="text-sm font-semibold text-gray-800 mb-2">Major US Cities</h3>
+        <h3 className="text-sm font-semibold text-gray-800 mb-2">
+          Major US Cities
+        </h3>
         <div className="flex items-center mb-2">
           <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md mr-2"></div>
-          <span className="text-xs text-gray-600">Click markers for city insights</span>
+          <span className="text-xs text-gray-600">
+            Click markers for city insights
+          </span>
         </div>
         <p className="text-xs text-gray-500">
-          Explore trending data and demographics for {majorCities.length} major cities across the United States.
+          Explore trending data and demographics for {majorCities.length} major
+          cities across the United States.
         </p>
+      </div>
+      <div className="absolute right-0 top-0 h-full w-[25%]">
+        <h1 className="text-center font-semibold text-blue-600 mt-2 mb-2">
+          Trends
+        </h1>
+        <input
+          type="text"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="block mx-auto text-center w-[80%] h-[4%] rounded-md border-2 border-solid border-blue-100 bg-blue-100 text-blue-800 font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400"
+          placeholder="⌕ Search for cities..."
+        />
+        {searchValue && (
+          <ul className="absolute left-1/2 transform -translate-x-1/2 w-[80%] bg-white border border-blue-100 rounded-md shadow z-10 mt-1 max-h-48 overflow-y-auto">
+            {cityNames
+              .filter((name) =>
+                name.toLowerCase().includes(searchValue.toLowerCase())
+              )
+              .map((name) => (
+                <li
+                  key={name}
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                  onClick={() => {
+                    setSearchValue(name);
+                    const city = majorCities.find((c) => c.name === name);
+                    if (city) setSelectedCity(city.subreddit);
+                  }}
+                >
+                  {name}
+                </li>
+              ))}
+          </ul>
+        )}
+        <div className="flex flex-col px-4 mt-4 overflow-y-auto max-h-[90%]">
+          {trendsLoading ? (
+            <div className="text-center text-gray-500 mt-8">Loading...</div>
+          ) : cityTrendData ? (
+            cityTrendData.length > 0 ? (
+              cityTrendData.map((trend, idx) => (
+                <a
+                  key={idx}
+                  href={trend.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mb-4 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition border border-blue-100 shadow-sm"
+                >
+                  <div className="font-semibold text-blue-800">
+                    {trend.title}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1 flex gap-4">
+                    <span>Score: {trend.score}</span>
+                    <span>Comments: {trend.comments}</span>
+                  </div>
+                </a>
+              ))
+            ) : (
+              <div className="text-center text-gray-400 mt-8">
+                No trends found.
+              </div>
+            )
+          ) : (
+            <div className="text-center text-gray-400 mt-8">
+              Click a city marker to view trends.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

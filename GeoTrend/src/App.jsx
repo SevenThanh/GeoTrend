@@ -7,6 +7,7 @@ import MapPage from "./pages/MapPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AccountPage from "./pages/AccountPage";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // Component to handle authenticated routing
@@ -65,9 +66,7 @@ const AuthenticatedApp = () => {
                     path="/account" 
                     element={
                       <ProtectedRoute>
-                        <div className="h-full flex items-center justify-center">
-                          <h1 className="text-2xl text-gray-600">Account page coming soon!</h1>
-                        </div>
+                        <AccountPage />
                       </ProtectedRoute>
                     } 
                   />

@@ -19,7 +19,7 @@ const Navbar = () => {
   return (
     <nav className="bg-blue-600 p-4 flex justify-between items-center shadow-lg">
       <Link to="/" className="text-white font-bold text-xl hover:text-blue-100 transition duration-200">
-        Global Trend Explorer
+        GeoTrend
       </Link>
       
       <div className="flex items-center space-x-6">

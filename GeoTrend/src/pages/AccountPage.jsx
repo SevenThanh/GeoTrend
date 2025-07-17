@@ -48,8 +48,8 @@ const AccountPage = () => {
     <div className="bg-[#FFF4EC] min-h-screen py-16">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
         {/* Left side */}
-        <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="flex items-center gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-start gap-4 mb-6">
             <div className="w-20 h-20 bg-blue-600 text-white text-3xl flex items-center justify-center rounded-full font-bold uppercase shadow">
               {formData.displayName.charAt(0)}
             </div>
@@ -63,7 +63,7 @@ const AccountPage = () => {
                   <div className="text-gray-500 text-sm">Timezone: {formData.timezone}</div>
                 </>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <input
                     type="text"
                     name="displayName"
@@ -111,7 +111,7 @@ const AccountPage = () => {
               )}
             </div>
           </div>
-          <div className="flex justify-end gap-4 border-t pt-6">
+          <div className="flex justify-end gap-3 border-t pt-4">
             {!editing ? (
               <button
                 onClick={() => setEditing(true)}

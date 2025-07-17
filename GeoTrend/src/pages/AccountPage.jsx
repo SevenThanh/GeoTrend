@@ -144,8 +144,11 @@ const AccountPage = () => {
             </button>
           </div>
         </div>
-
         {/* Right Side */}
+        <div className="md:col-span-2 bg-white rounded-xl shadow-md p-8">
+          <h2 className="text-xl font-bold mb-4">Saved Trends</h2>
+          <div className="text-gray-500">You haven't saved any trends yet. Start exploring to add some!</div>
+        </div>
       </div>
     </div>
   );

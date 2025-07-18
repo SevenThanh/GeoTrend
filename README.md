@@ -24,7 +24,7 @@ GeoTrend is an interactive global trend explorer that helps users discover trend
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/your-username/GeoTrend.git](https://github.com/SevenThanh/GeoTrend.git)
+   git clone https://github.com/SevenThanh/GeoTrend.git
    cd GeoTrend
    ```
 

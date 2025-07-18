@@ -1,4 +1,5 @@
 Johan
+
 Core Infrastructure:
 - Implemented project dependencies
 - Set up folder structures
@@ -13,6 +14,7 @@ User Account Features:
 - Developed location updating system for local trend discovery
 
 Will
+
 API Integration:
 - Researched map integration solutions
 - Implemented Mapbox API
@@ -25,6 +27,7 @@ Visual & Map Features:
 - Implemented location-based trend searching
 
 Bryan
+
 Authentication & Backend:
 - Set up Supabase integration
 - Configured authentication system

@@ -2,9 +2,9 @@ name: Run Unit Tests
 
 on:
   push:
-    branches: [william-branch]
+    branches: [main, william-branch]
   pull_request:
-    branches: [william-branch]
+    branches: [main, william-branch]
 
 jobs:
   test:
@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: GeoTrend # 👈 tells all `run:` steps to run from the inner folder
+        working-directory: GeoTrend # 👈 run commands from the inner GeoTrend/ folder
 
     steps:
       - name: ⬇️ Checkout repo

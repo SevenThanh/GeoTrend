@@ -10,6 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: GeoTrend # 👈 tells all `run:` steps to run from the inner folder
+
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3

@@ -54,7 +54,7 @@ GeoTrend/
 │   ├── styles/
 │   └── utils/
 ├── .github/
-│   └── workflows/       # GitHub Actions CI
+│   └── workflows/
 ├── package.json
 ├── README.md
 └── ...

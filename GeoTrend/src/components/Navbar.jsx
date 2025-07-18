@@ -26,9 +26,6 @@ const Navbar = () => {
         <Link to="/" className="text-white hover:text-blue-100 flex items-center transition duration-200">
           <FaMapMarkedAlt className="mr-1" /> Map
         </Link>
-        <Link to="/foryou" className="text-white hover:text-blue-100 flex items-center transition duration-200">
-          <FaHeart className="mr-1" /> For You
-        </Link>
         
         {user ? (
           <div className="flex items-center space-x-4">

@@ -53,16 +53,6 @@ const AuthenticatedApp = () => {
                     } 
                   />
                   <Route 
-                    path="/foryou" 
-                    element={
-                      <ProtectedRoute>
-                        <div className="h-full flex items-center justify-center">
-                          <h1 className="text-2xl text-gray-600">For You page coming soon!</h1>
-                        </div>
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
                     path="/account" 
                     element={
                       <ProtectedRoute>

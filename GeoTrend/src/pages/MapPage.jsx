@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useAuth } from "../contexts/AuthContext";
 
 mapboxgl.accessToken =
   "pk.eyJ1Ijoid2ppam9uMjIzIiwiYSI6ImNtZDY0dDkxdTA2ZHUyanEyZWV5NXBnNGYifQ.55-IA8r-KG8di_-s-CLunw";
@@ -11,6 +12,8 @@ const MapPage = () => {
   const [selectedCity, setSelectedCity] = useState(null);
   const [cityTrendData, setCityTrendData] = useState(null);
   const [searchValue, setSearchValue] = useState("");
+  const { saveTrend, unsaveTrend, isTrendSaved } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     async function getCityTrends() {
@@ -30,6 +33,18 @@ const MapPage = () => {
           url: "https://reddit.com" + post.data.permalink,
         }));
         setCityTrendData(data);
+        const savedSet = new Set();
+        for (const trend of data) {
+          try {
+            const { data: isSaved } = await isTrendSaved(trend.url);
+            if (isSaved) {
+              savedSet.add(trend.url);
+            }
+          } catch (error) {
+            console.log('Error checking saved status:', error);
+          }
+        }
+        setSavedTrends(savedSet);
       } catch (error) {
         console.log(error.message);
       } finally {
@@ -37,7 +52,40 @@ const MapPage = () => {
       }
     }
     getCityTrends();
-  }, [selectedCity]);
+  }, [selectedCity, isTrendSaved]);
+
+  const handleSaveTrend = async (trend) => {
+    try {
+      const currentCity = majorCities.find(city => city.subreddit === selectedCity);
+      const { error } = await saveTrend(trend, currentCity?.name || '', selectedCity);
+      
+      if (!error) {
+        setSavedTrends(prev => new Set([...prev, trend.url]));
+      } else {
+        console.error('Error saving trend:', error);
+      }
+    } catch (error) {
+      console.error('Error saving trend:', error);
+    }
+  };
+
+  const handleUnsaveTrend = async (trendUrl) => {
+    try {
+      const { error } = await unsaveTrend(trendUrl);
+      
+      if (!error) {
+        setSavedTrends(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(trendUrl);
+          return newSet;
+        });
+      } else {
+        console.error('Error unsaving trend:', error);
+      }
+    } catch (error) {
+      console.error('Error unsaving trend:', error);
+    }
+  };
 
   // Major US cities data
   const majorCities = [
@@ -435,11 +483,16 @@ const MapPage = () => {
         <input
           type="text"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+            setShowDropdown(e.target.value.length > 0);
+          }}
+          onFocus={() => setShowDropdown(searchValue.length > 0)}
+          onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
           className="block mx-auto text-center w-[80%] h-[4%] rounded-md border-2 border-solid border-blue-100 bg-blue-100 text-blue-800 font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400"
           placeholder="⌕ Search for cities..."
         />
-        {searchValue && (
+        {showDropdown && searchValue && (
           <ul className="absolute left-1/2 transform -translate-x-1/2 w-[80%] bg-white border border-blue-100 rounded-md shadow z-10 mt-1 max-h-48 overflow-y-auto">
             {cityNames
               .filter((name) =>
@@ -452,8 +505,11 @@ const MapPage = () => {
                   onClick={() => {
                     setSearchValue(name);
                     const city = majorCities.find((c) => c.name === name);
-                    if (city) setSelectedCity(city.subreddit);
-                  }}
+                    if (city) {
+                      setSelectedCity(city.subreddit);
+                      setSearchValue("");
+                      setShowDropdown(false);
+                    }}}
                 >
                   {name}
                 </li>
@@ -466,21 +522,39 @@ const MapPage = () => {
           ) : cityTrendData ? (
             cityTrendData.length > 0 ? (
               cityTrendData.map((trend, idx) => (
-                <a
+                <div
                   key={idx}
-                  href={trend.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mb-4 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition border border-blue-100 shadow-sm"
+                  className="mb-4 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition border border-blue-100 shadow-sm relative"
+
+
+
                 >
-                  <div className="font-semibold text-blue-800">
-                    {trend.title}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1 flex gap-4">
-                    <span>Score: {trend.score}</span>
-                    <span>Comments: {trend.comments}</span>
-                  </div>
-                </a>
+                  <button
+                    onClick={() => savedTrends.has(trend.url) ? handleUnsaveTrend(trend.url) : handleSaveTrend(trend)}
+                    className={`absolute top-2 right-2 p-1 rounded-full text-xs transition-colors ${
+                      savedTrends.has(trend.url) 
+                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                    title={savedTrends.has(trend.url) ? 'Unsave trend' : 'Save trend'}
+                  >
+                    {savedTrends.has(trend.url) ? '★' : '☆'}
+                  </button>
+                  <a
+                    href={trend.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block pr-8"
+                  >
+                    <div className="font-semibold text-blue-800">
+                      {trend.title}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 flex gap-4">
+                      <span>Score: {trend.score}</span>
+                      <span>Comments: {trend.comments}</span>
+                    </div>
+                  </a>
+                </div>
               ))
             ) : (
               <div className="text-center text-gray-400 mt-8">

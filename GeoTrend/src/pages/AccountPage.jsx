@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabase';
 
+
 const AccountPage = () => {
-  const { user, signOut, loading: authLoading } = useAuth();
+  const { user, signOut, loading: authLoading, getSavedTrends, unsaveTrend } = useAuth();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     username: user?.user_metadata?.username || '',
@@ -13,6 +14,8 @@ const AccountPage = () => {
     timezone: user?.user_metadata?.timezone || 'UTC',
   });
   const [updating, setUpdating] = useState(false);
+  const [savedTrends, setSavedTrends] = useState([]);
+  const [loadingTrends, setLoadingTrends] = useState(true);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,6 +42,42 @@ const AccountPage = () => {
   };
 
   const timezones = ['UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London', 'Asia/Tokyo']; 
+  useEffect(() => {
+    const fetchSavedTrends = async () => {
+      if (user) {
+        try {
+          setLoadingTrends(true);
+          const { data, error } = await getSavedTrends();
+          if (error) {
+            console.error('Error fetching saved trends:', error);
+          } else {
+            setSavedTrends(data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching saved trends:', error);
+        } finally {
+          setLoadingTrends(false);
+        }
+      } else {
+        setLoadingTrends(false);
+      }
+    };
+
+    fetchSavedTrends();
+  }, [user, getSavedTrends]);
+
+  const handleUnsaveTrend = async (trendUrl) => {
+    try {
+      const { error } = await unsaveTrend(trendUrl);
+      if (!error) {
+        setSavedTrends(prev => prev.filter(trend => trend.url !== trendUrl));
+      } else {
+        console.error('Error unsaving trend:', error);
+      }
+    } catch (error) {
+      console.error('Error unsaving trend:', error);
+    }
+  };
 
   if (authLoading || !user) {
     return <div className="flex justify-center items-center h-96 text-gray-600">Loading...</div>;
@@ -148,7 +187,46 @@ const AccountPage = () => {
         {/* Right Side */}
         <div className="md:col-span-2 bg-white rounded-xl shadow-md p-8">
           <h2 className="text-xl font-bold mb-4">Saved Trends</h2>
-          <div className="text-gray-500">You haven't saved any trends yet. Start exploring to add some!</div>
+          {loadingTrends ? (
+            <div className="text-center text-gray-500">Loading saved trends...</div>
+          ) : savedTrends.length > 0 ? (
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {savedTrends.map((trend) => (
+                <div
+                  key={trend.id}
+                  className="p-4 rounded-lg bg-blue-50 border border-blue-100 shadow-sm relative"
+                >
+                  <button
+                    onClick={() => handleUnsaveTrend(trend.url)}
+                    className="absolute top-2 right-2 p-1 rounded-full text-xs bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    title="Remove from saved"
+                  >
+                    ✕
+                  </button>
+                  <a
+                    href={trend.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block pr-8 hover:text-blue-700"
+                  >
+                    <div className="font-semibold text-blue-800 mb-2">
+                      {trend.title}
+                    </div>
+                    <div className="text-xs text-gray-500 flex gap-4 mb-2">
+                      <span>Score: {trend.score}</span>
+                      <span>Comments: {trend.comments}</span>
+                    </div>
+                    <div className="text-xs text-blue-600">
+                      <span>From: {trend.city}</span>
+                      <span className="ml-4">Saved: {new Date(trend.saved_at).toLocaleDateString()}</span>
+                    </div>
+                  </a>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-500">You haven't saved any trends yet. Start exploring to add some!</div>
+          )}
         </div>
       </div>
     </div>

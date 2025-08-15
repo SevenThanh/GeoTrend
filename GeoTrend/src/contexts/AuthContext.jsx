@@ -41,7 +41,8 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
       options: {
-        data: metadata
+        data: metadata,
+        emailRedirectTo: 'https://geo-trend.vercel.app/login'
       }
     });
     return { data, error };
@@ -86,6 +87,61 @@ export const AuthProvider = ({ children }) => {
     });
     return { data, error };
   };
+  const saveTrend = async (trendData, city, subreddit) => {
+    if (!user) return { error: 'User not authenticated' };
+    
+    const { data, error } = await supabase
+      .from('saved_trends')
+      .insert({
+        user_id: user.id,
+        title: trendData.title,
+        score: trendData.score,
+        comments: trendData.comments,
+        url: trendData.url,
+        city: city,
+        subreddit: subreddit
+      });
+    
+    return { data, error };
+  };
+
+  const unsaveTrend = async (trendUrl) => {
+    if (!user) return { error: 'User not authenticated' };
+    
+    const { data, error } = await supabase
+      .from('saved_trends')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('url', trendUrl);
+    
+    return { data, error };
+  };
+
+  const getSavedTrends = async () => {
+    if (!user) return { data: [], error: 'User not authenticated' };
+    
+    const { data, error } = await supabase
+      .from('saved_trends')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('saved_at', { ascending: false });
+    
+    return { data, error };
+  };
+
+  const isTrendSaved = async (trendUrl) => {
+    if (!user) return { data: false, error: null };
+    
+    const { data, error } = await supabase
+      .from('saved_trends')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('url', trendUrl)
+      .single();
+    
+    return { data: !!data, error: error?.code === 'PGRST116' ? null : error };
+  };
+
 
   const value = {
     user,
@@ -96,6 +152,10 @@ export const AuthProvider = ({ children }) => {
     signInWithGoogle,
     signInWithGitHub,
     resetPassword,
+    saveTrend,
+    unsaveTrend,
+    getSavedTrends,
+    isTrendSaved
   };
 
   return (
